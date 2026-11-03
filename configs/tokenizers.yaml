@@ -1,0 +1,83 @@
+tokenizers:
+  es_char:
+    type: char
+    tokens: data/vocab/es_char/tokens.json
+    purpose: coverage_baseline
+    ctc_blank_id: 0
+  es_unigram_1000:
+    type: sentencepiece_unigram
+    vocab_size: 1000
+    model: data/vocab/es_unigram_1000/es_unigram_1000.model
+    tokens: data/vocab/es_unigram_1000/tokens.json
+    purpose: primary_spoken_spanish
+    ctc_blank_id: 0
+  es_unigram_2000:
+    type: sentencepiece_unigram
+    vocab_size: 2000
+    model: data/vocab/es_unigram_2000/es_unigram_2000.model
+    tokens: data/vocab/es_unigram_2000/tokens.json
+    purpose: larger_subword_comparison
+    ctc_blank_id: 0
+
+base_special_tokens:
+  - "<blank>"
+  - "<unk>"
+  - "<s>"
+  - "</s>"
+
+control_tokens:
+  - "<|es|>"
+  - "<|ASR|>"
+  - "<|nospeech|>"
+
+normalization:
+  lowercase: true
+  keep_diacritics: true
+  keep_letters: "a-z áéíóúüñ"
+  punctuation: remove
+  digits: should_be_normalized_to_spanish_words_before_tokenizer_training
+
+training_defaults:
+  tokenizer: es_unigram_1000
+  sample_rate: 8000
+  num_mel_bins: 80
+  frontend:
+    lfr_m: 7
+    lfr_n: 6
+    input_dim: 560
+  batching:
+    type: dynamic
+    max_examples: 8
+    max_frames_per_batch: 2400
+    max_tokens_per_batch: 2000
+  loss: ctc_attention
+  optimizer: adamw
+  lr: 0.00002
+  scheduler: warmuplr
+  warmup_steps: 25000
+  grad_accum_steps: 1
+  max_grad_norm: 5.0
+  log_interval: 100
+  architecture:
+    name: sensevoice_small_sanm
+    encoder_dim: 512
+    num_layers: 50
+    num_heads: 4
+    feedforward_dim: 2048
+    tp_blocks: 20
+    dropout: 0.1
+    attention_dropout_rate: 0.1
+    kernel_size: 11
+    sanm_shfit: 0
+    sos: 1
+    eos: 2
+    length_normalized_loss: true
+    decoder_layers: 2
+    ctc_loss_weight: 1.0
+    decoder_loss_weight: 1.0
+  specaug:
+    enabled: true
+    freq_mask_width: 30
+    num_freq_mask: 1
+    time_mask_width: 12
+    num_time_mask: 1

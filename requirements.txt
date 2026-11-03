@@ -1,0 +1,6 @@
+torch
+torchaudio
+sentencepiece>=0.1.96
+funasr
+soundfile
+librosa
